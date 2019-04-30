@@ -1,0 +1,126 @@
+﻿@model WebPageAnalyzer.Models.AnalyzerViewModel
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .carousel-image {
+        width: auto;
+        height: 350px;
+        max-height: 350px;
+    }
+</style>
+<h2>WebPage Analyzer</h2>
+@using (Html.BeginForm("SubmitUrlforAnalysis", "Analysis"))
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Test Url</h4>
+            <div>
+                @Html.TextBoxFor(m => m.TestUrl, new { @class = "form-control pull-left", required = "required" })
+                <button class="btn btn-primary pull-right" type="submit">Submit Url</button>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <div class="row">
+        @if (Model.WebPageImages.Count > 0)
+        {
+        <div class="col-md-8">
+            <h4>Page Images</h4>
+            <div id="carouselSlidesOnly" class="carousel carousel-fade" data-ride="carousel">
+                <div class="carousel-inner">
+                    @foreach (var i in Model.WebPageImages)
+                    {
+                        if (Model.WebPageImages.IndexOf(i) == 0)
+                        {
+                            <div class="item carousel-image active">
+                                <img class="d-block w-100" src="@i" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="item carousel-image">
+                                <img class="d-block w-100" src="@i" />
+                            </div>
+                        }
+                    }
+                </div>
+                <a class="carousel-control-prev" href="#carouselSlidesOnly" role="button" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                    <span>Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselSlidesOnly" role="button" data-slide="next">
+                    <span>Next</span>
+                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                </a>
+            </div>
+        </div>
+        }
+    </div>
+    <div class="row">
+       @if (Model.WebPageWordCount > 0)
+        {
+        <div class="col-md-3">
+            <h2 style="float:left">Word Count: </h2>
+            <h2 style="float:right">@Model.WebPageWordCount</h2>
+        </div>
+        <div class="col-md-9">
+            <canvas id="wordChart" style="width:100%"></canvas>
+        </div>
+        }
+    </div>
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+<script>
+    if (@Model.WebPageWordCount > 0) {
+
+        var wordArray = [];
+        var countArray = [];
+
+        @foreach(var w in Model.Top10WebPageWords)
+        {
+            @:wordArray.push("@w.Key");
+            @:countArray.push(@w.Value);
+        }
+        var ctx = document.getElementById('wordChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: wordArray,
+                datasets: [{
+                    label: '@Model.TestUrl Top 10 # of Words',
+                    data: countArray,
+                    backgroundColor: [
+                        'rgba(0, 0, 128, 0.8)',
+                        'rgba(0, 0, 255, 0.8)',
+                        'rgba(0, 128, 0, 0.8)',
+                        'rgba(0, 128, 128, 0.8)',
+                        'rgba(0, 255, 0, 0.8)',
+                        'rgba(0, 255, 255, 0.8)',
+                        'rgba(128, 0, 0, 0.8)',
+                        'rgba(128, 0, 128, 0.8)',
+                        'rgba(255, 0, 0, 0.8)',
+                        'rgba(255, 0, 255, 0.8)',
+                    ],
+                    borderColor: [
+                        'rgba(0, 0, 128, 1)',
+                        'rgba(0, 0, 255, 1)',
+                        'rgba(0, 128, 0, 1)',
+                        'rgba(0, 128, 128, 1)',
+                        'rgba(0, 255, 0, 1)',
+                        'rgba(0, 255, 255, 1)',
+                        'rgba(128, 0, 0, 1)',
+                        'rgba(128, 0, 128, 1)',
+                        'rgba(255, 0, 0, 1)',
+                        'rgba(255, 0, 255, 1)',
+                    ],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+</script>
